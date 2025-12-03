@@ -1,18 +1,13 @@
 CC = gcc
 CFLAGS = -Wall -g
-TARGET = hw1shell
-SRCS = hw1shell.c
-OBJS = $(SRCS:.c=.o)
 
-all: $(TARGET)
+hw1shell: hw1shell.o
+	$(CC) $(CFLAGS) -o hw1shell hw1shell.o
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+hw1shell.o: hw1shell.c hw1shell.h
+	$(CC) $(CFLAGS) -c hw1shell.c
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f hw1shell *.o
 
-.PHONY: all clean
+.PHONY: clean

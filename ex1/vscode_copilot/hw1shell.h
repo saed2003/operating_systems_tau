@@ -1,7 +1,12 @@
-#ifndef HW1SHELL_H
-#define HW1SHELL_H
-
 #include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <signal.h>
 
 /* Constants */
 #define MAX_LINE 1024
@@ -28,5 +33,3 @@ void build_command_string(char **args, char *command, int is_background);
 int handle_cd(char **args);
 void handle_jobs(void);
 void execute_external(char **args, int is_background, const char *command);
-
-#endif /* HW1SHELL_H */

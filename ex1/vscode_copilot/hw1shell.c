@@ -1,17 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <signal.h>
 #include "hw1shell.h"
 
-/* Global array to track background jobs */
 BackgroundJob bg_jobs[MAX_BG_JOBS];
 
-/* Initialize background jobs array */
 void init_bg_jobs() {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         bg_jobs[i].pid = 0;
@@ -19,7 +9,6 @@ void init_bg_jobs() {
     }
 }
 
-/* Add a background job */
 int add_bg_job(pid_t pid, const char *command) {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         if (bg_jobs[i].pid == 0) {
@@ -32,7 +21,6 @@ int add_bg_job(pid_t pid, const char *command) {
     return -1; /* No free slot */
 }
 
-/* Remove a background job */
 void remove_bg_job(pid_t pid) {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         if (bg_jobs[i].pid == pid) {
@@ -43,7 +31,6 @@ void remove_bg_job(pid_t pid) {
     }
 }
 
-/* Reap finished background jobs */
 void reap_bg_jobs() {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         if (bg_jobs[i].pid != 0) {
@@ -60,7 +47,6 @@ void reap_bg_jobs() {
     }
 }
 
-/* Wait for all background jobs (for exit command) */
 void wait_all_bg_jobs() {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         if (bg_jobs[i].pid != 0) {
@@ -73,7 +59,6 @@ void wait_all_bg_jobs() {
     }
 }
 
-/* Parse input line into arguments */
 int parse_input(char *line, char **args, int *is_background) {
     int argc = 0;
     *is_background = 0;
@@ -96,7 +81,6 @@ int parse_input(char *line, char **args, int *is_background) {
     return argc;
 }
 
-/* Build command string for background jobs */
 void build_command_string(char **args, char *command, int is_background) {
     command[0] = '\0';
     for (int i = 0; args[i] != NULL; i++) {
@@ -108,7 +92,6 @@ void build_command_string(char **args, char *command, int is_background) {
     }
 }
 
-/* Handle internal cd command */
 int handle_cd(char **args) {
     if (args[1] == NULL || args[2] != NULL) {
         fprintf(stderr, "hw1shell: invalid command\n");
@@ -122,7 +105,6 @@ int handle_cd(char **args) {
     return 0;
 }
 
-/* Handle internal jobs command */
 void handle_jobs() {
     for (int i = 0; i < MAX_BG_JOBS; i++) {
         if (bg_jobs[i].pid != 0) {
@@ -131,7 +113,6 @@ void handle_jobs() {
     }
 }
 
-/* Execute external command */
 void execute_external(char **args, int is_background, const char *command) {
     pid_t pid = fork();
     
@@ -176,34 +157,26 @@ int main() {
     init_bg_jobs();
     
     while (1) {
-        /* Print prompt */
         printf("hw1shell$ ");
         fflush(stdout);
         
-        /* Read input */
         if (fgets(line, MAX_LINE, stdin) == NULL) {
-            /* EOF or error */
             break;
         }
-        
-        /* Make a copy of the line for command string */
+
         char line_copy[MAX_LINE];
         strncpy(line_copy, line, MAX_LINE);
         
-        /* Parse input */
         int argc = parse_input(line, args, &is_background);
         
-        /* Empty command */
         if (argc == 0) {
             reap_bg_jobs();
             continue;
         }
         
-        /* Build command string (without the trailing newline) */
         char command[MAX_LINE];
         build_command_string(args, command, is_background);
         
-        /* Handle internal commands */
         if (strcmp(args[0], "exit") == 0) {
             wait_all_bg_jobs();
             break;
@@ -216,7 +189,6 @@ int main() {
             execute_external(args, is_background, command);
         }
         
-        /* Reap finished background jobs */
         reap_bg_jobs();
     }
     
